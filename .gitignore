@@ -1,0 +1,17 @@
+/.env
+/venv/
+/node_modules/
+/dist/
+/build/
+/logs/
+/data/
+/static/
+/templates/
+/staticfiles/
+/media/
+/uploads/
+/cache/
+/__pycache__/
+/tests/
+/tests_*/
+/tests_*/
