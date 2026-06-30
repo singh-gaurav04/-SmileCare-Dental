@@ -12,13 +12,15 @@ An AI-powered dental clinic receptionist API built with **FastAPI** and **Mistra
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| API framework | [FastAPI](https://fastapi.tiangolo.com/) |
-| ASGI server | [Uvicorn](https://www.uvicorn.org/) |
-| LLM | [Mistral AI](https://mistral.ai/) via `langchain-mistralai` |
-| Validation | [Pydantic](https://docs.pydantic.dev/) |
-| Config | `python-dotenv` |
+
+| Layer         | Technology                                                  |
+| ------------- | ----------------------------------------------------------- |
+| API framework | [FastAPI](https://fastapi.tiangolo.com/)                    |
+| ASGI server   | [Uvicorn](https://www.uvicorn.org/)                         |
+| LLM           | [Mistral AI](https://mistral.ai/) via `langchain-mistralai` |
+| Validation    | [Pydantic](https://docs.pydantic.dev/)                      |
+| Config        | `python-dotenv`                                             |
+
 
 ## Project Structure
 
@@ -31,6 +33,10 @@ SmileCare-Dental/
 │   └── llm/
 │       ├── llm.py           # Mistral LLM client configuration
 │       └── PROMPT.py        # System prompt and clinic knowledge base
+├── photos/                  # API output reference screenshots
+│   ├── Screenshot 2026-06-30 115010.png
+│   ├── Screenshot 2026-06-30 115100.png
+│   └── Screenshot 2026-06-30 115129.png
 ├── .env                     # Environment variables (not committed)
 └── README.md
 ```
@@ -147,17 +153,19 @@ Send a user message to the AI receptionist.
 
 The AI receptionist is configured to handle the following intents:
 
-| Intent | Description |
-|--------|-------------|
-| `greeting` | Hello, hi, good morning, etc. |
-| `service_inquiry` | Questions about available treatments |
-| `book_appointment` | Scheduling or booking a visit |
-| `clinic_hours` | Operating hours questions |
-| `contact_info` | Phone, email, or contact details |
+
+| Intent                 | Description                           |
+| ---------------------- | ------------------------------------- |
+| `greeting`             | Hello, hi, good morning, etc.         |
+| `service_inquiry`      | Questions about available treatments  |
+| `book_appointment`     | Scheduling or booking a visit         |
+| `clinic_hours`         | Operating hours questions             |
+| `contact_info`         | Phone, email, or contact details      |
 | `service_availability` | Whether a specific service is offered |
-| `unsupported_service` | Requests for services not listed |
-| `clinic_information` | General clinic overview |
-| `goodbye` | Thanks, bye, see you |
+| `unsupported_service`  | Requests for services not listed      |
+| `clinic_information`   | General clinic overview               |
+| `goodbye`              | Thanks, bye, see you                  |
+
 
 ## Clinic Information (Knowledge Base)
 
@@ -166,7 +174,7 @@ The assistant uses the following SmileCare Dental details:
 - **Hours:** Monday–Friday, 10:00 AM – 7:00 PM
 - **Services:** Dental Cleaning, Root Canal, Braces, Teeth Whitening
 - **Phone:** 9876543210
-- **Email:** support@smilecare.com
+- **Email:** [support@smilecare.com](mailto:support@smilecare.com)
 
 Clinic details and intent rules are defined in `src/llm/PROMPT.py` and can be updated there without changing application code.
 
@@ -189,6 +197,52 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/chat/" `
   -Body '{"messages": "Hello"}'
 ```
 
+## Output Reference
+
+The screenshots below show real `POST /chat/` responses from Swagger UI (`/docs`) at `http://127.0.0.1:8000`.
+
+### Greeting
+
+**Input:** `"Hi"`
+
+![Greeting intent response](photos/Screenshot%202026-06-30%20115010.png)
+
+```json
+{
+  "intent": "greeting",
+  "entities": {},
+  "response": "Hello! Welcome to SmileCare Dental. How can I assist you today?"
+}
+```
+
+### Clinic Hours
+
+**Input:** `"What are your timings?"`
+
+![Clinic hours intent response](photos/Screenshot%202026-06-30%20115100.png)
+
+```json
+{
+  "intent": "clinic_hours",
+  "entities": {},
+  "response": "SmileCare Dental is open Monday to Friday from 10:00 AM to 7:00 PM."
+}
+```
+
+### Clinic Information
+
+**Input:** `"What services do you provide?"`
+
+![Clinic information intent response](photos/Screenshot%202026-06-30%20115129.png)
+
+```json
+{
+  "intent": "clinic_information",
+  "entities": {},
+  "response": "SmileCare Dental offers the following services: Dental Cleaning, Root Canal, Braces, and Teeth Whitening. We are open Monday to Friday from 10:00 AM to 7:00 PM."
+}
+```
+
 ## How It Works
 
 1. The client sends a plain-text `messages` field to `POST /chat/`.
@@ -197,6 +251,3 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/chat/" `
 4. The API strips optional markdown code fences and parses the JSON.
 5. A typed `ChatResponse` is returned with `intent`, `entities`, and `response`.
 
-## License
-
-This project is provided as-is for educational and development purposes.
