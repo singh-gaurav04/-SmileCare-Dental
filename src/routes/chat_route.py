@@ -29,13 +29,14 @@ async def chat(request: ChatRequest):
     intent = parsed["intent"]
     response_text = parsed["response"]
     if intent == "book_appointment" and (
-        entities.get("date") is None or entities.get("time") is None
+        entities.get("date") is None and entities.get("time") is None
     ):
         service = entities.get("service", "dental")
         response_text = (
             f"I'd be happy to help. Which date and time would you prefer "
             f"for your {service} appointment?"
         )
+    
     return ChatResponse(
         intent=intent,
         entities=entities,
