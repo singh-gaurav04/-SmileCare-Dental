@@ -28,15 +28,22 @@ An AI-powered dental clinic receptionist API built with **FastAPI** and **Mistra
 SmileCare-Dental/
 ├── src/
 │   ├── main.py              # FastAPI app entry point
+│   ├── core/
+│   │   └── logger.py        # Logging configuration
 │   ├── routes/
 │   │   └── chat_route.py    # Chat endpoint and response parsing
+│   ├── schemas/
+│   │   └── chatSchema.py    # Request/response models
 │   └── llm/
 │       ├── llm.py           # Mistral LLM client configuration
 │       └── PROMPT.py        # System prompt and clinic knowledge base
 ├── photos/                  # API output reference screenshots
 │   ├── Screenshot 2026-06-30 115010.png
 │   ├── Screenshot 2026-06-30 115100.png
-│   └── Screenshot 2026-06-30 115129.png
+│   ├── Screenshot 2026-06-30 115129.png
+│   ├── Screenshot 2026-06-30 120035.png
+│   ├── Screenshot 2026-06-30 120047.png
+│   └── Screenshot 2026-06-30 120052.png
 ├── .env                     # Environment variables (not committed)
 └── README.md
 ```
@@ -83,6 +90,7 @@ Create a `.env` file in the project root:
 
 ```env
 MISTRAL_API_KEY=your_mistral_api_key_here
+LOG_LEVEL=INFO
 ```
 
 ## Running the Server
@@ -199,7 +207,15 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/chat/" `
 
 ## Output Reference
 
-The screenshots below show real `POST /chat/` responses from Swagger UI (`/docs`) at `http://127.0.0.1:8000`.
+The screenshots below show real API behaviour from Swagger UI (`/docs`), server logs, and the interactive API documentation at `http://127.0.0.1:8000`.
+
+### API Documentation (Swagger UI)
+
+Overview of available endpoints and schemas in `/docs`.
+
+![Swagger UI API documentation](photos/Screenshot%202026-06-30%20120052.png)
+
+---
 
 ### Greeting
 
@@ -243,6 +259,37 @@ The screenshots below show real `POST /chat/` responses from Swagger UI (`/docs`
 }
 ```
 
+### Appointment Booking
+
+**Input:** `"Book root canal tomorrow"`
+
+![Appointment booking intent response](photos/Screenshot%202026-06-30%20120047.png)
+
+```json
+{
+  "intent": "book_appointment",
+  "entities": {
+    "service": "Root Canal",
+    "date": "tomorrow",
+    "time": null
+  },
+  "response": "I'd be happy to help schedule your Root Canal appointment. What time would you prefer tomorrow? Our clinic is open from 10:00 AM to 7:00 PM."
+}
+```
+
+### Server Logs
+
+Structured logging output when handling a chat request (intent detection, entity extraction, and `200 OK` response).
+
+![Server logs for chat request](photos/Screenshot%202026-06-30%20120035.png)
+
+```
+2026-06-30 12:00:08 | INFO     | src.main | SmileCare Dental API starting
+2026-06-30 12:00:21 | INFO     | src.routes.chat_route | Chat request received: message='Book root canal tomorrow'
+2026-06-30 12:00:23 | INFO     | src.routes.chat_route | Chat response: intent='book_appointment' entities={'service': 'Root Canal', 'date': 'tomorrow', 'time': None}
+INFO: 127.0.0.1:54328 - "POST /chat/ HTTP/1.1" 200 OK
+```
+
 ## How It Works
 
 1. The client sends a plain-text `messages` field to `POST /chat/`.
@@ -250,4 +297,5 @@ The screenshots below show real `POST /chat/` responses from Swagger UI (`/docs`
 3. The Mistral model (`mistral-large-latest`) generates a structured JSON response.
 4. The API strips optional markdown code fences and parses the JSON.
 5. A typed `ChatResponse` is returned with `intent`, `entities`, and `response`.
+6. Structured logs record each request, detected intent, entities, and response status.
 
